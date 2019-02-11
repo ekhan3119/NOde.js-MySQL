@@ -1,5 +1,14 @@
-
+//create required variables so the code works
 var mysql = require('mysql');
+var inquirer = require('inquirer');
+//global variables for user input quantity, user's total cost.
+// create variable for updating stock_quantity
+var userChoiceID = 0;
+var quantity = 0;
+var totalQuantity = 0;
+var userPrice = 0;
+
+//MySQL config to get connected
 var connection = mysql.createConnection({
     host: "localhost",
 
@@ -13,50 +22,88 @@ var connection = mysql.createConnection({
     password: "F@ltu123",
     database: "bamazonDB"
 });
-
+//connect to the database function 
 connection.connect(function (err) {
     if (err) throw err;
-    console.log("connected as id " + connection.threadId);
-    afterConnection();
-});
+    //console.log("connected as id " + connection.threadId);
+    questions();
 
-function afterConnection() {
-    connection.query("SELECT * FROM products", function (err, res) {
-        if (err) throw err;
-        console.log(res[0]);
-        connection.end();
-    });
+});
+// Update the table and which iteams to update.
+function updateTable(totalQuantity, userChoiceID) {
+    connection.query("UPDATE products SET ? WHERE ?",
+        [
+            {
+                stock_quantity: totalQuantity
+            },
+            {
+                item_id: userChoiceID
+            }
+        ],
+        function (err, res) {
+            if (err) throw err;
+            var totalCost = quantity * userPrice;
+            console.log("Your total is: " + '$' + totalCost);
+
+        })
 }
 
-var inquirer = require('inquirer');
-function question() {
-    inquirer
-        .prompt([{
-            name: 'products',
-            message: "Please enter the ID of the product that you wish to buy?",
-            type: 'input'
+//When user choses the item, check if the item is in stock and also check if we have the quantity that user choose.
+//If the stock Quantity less then what user desires for then show them a message.
+//if stock available then add the total quantity and price for the user
+//subtract the quantity from database and update new stock quantity.
+function getQuantityProduct(userChoiceID) {
+    connection.query("SELECT stock_quantity FROM products WHERE ?",
+        {
+            item_id: userChoiceID
         },
 
-        {
-            name: 'products',
-            message: "how many units of the product they would like to buy?",
-            type: 'input'
-        }
-        ])
-
-
-
-
-    //.then(function (answer) {
-    // // based on their answer, either call the bid or the post functions
-    // if (answer.postOrBid === "POST") {
-    //     postAuction();
-    // }
-    // else if (answer.postOrBid === "BID") {
-    //     bidAuction();
-    // } else {
-    //     connection.end();
-    // }
-    //});
+        function (err, res) {
+            if (err) throw err;
+            if (quantity > res[0].stock_quantity) {
+                console.log("Sorry we are out of stock.");
+            } else if (quantity < res[0].stock_quantity) {
+                updateTable(totalQuantity, userChoiceID);
+            }
+        })
 }
-question();
+//Ask the user which item they want 
+//Show the item_id, product_name, and price.
+//get user response and check in the stock for availability
+//show user their selection quantity.
+//show user the total cost
+function questions() {
+    connection.query("SELECT * FROM products", function (err, res) {
+        if (err) throw err;
+
+        for (var i = 0; i < res.length; i++) {
+            console.log("---------------------------------------------------");
+            console.log('\n item_id:' + res[i].item_id + ' || ' + 'product_name:' + res[i].product_name + ' || ' + 'price: $' + res[i].price);
+
+        }
+        inquirer
+            .prompt([
+                {
+                    name: 'item_id',
+                    type: 'input',
+                    message: "Please enter the ID of the product that you wish to buy?"
+
+                },
+                {
+                    name: 'quantity',
+                    type: 'input',
+                    message: "How many units of the product they would like to buy?"
+
+                }
+                //function to response after the input has been logged
+                //User choses an item_id, quantity(make it integer) and then User can see their total quantity, total price.  
+            ]).then(function (answer) {
+                userChoiceID = parseInt(answer.item_id);
+                quantity = parseInt(answer.quantity);
+                userPrice = res[userChoiceID - 1].price;
+                totalQuantity = res[userChoiceID - 1].stock_quantity - quantity;
+                getQuantityProduct(userChoiceID);
+
+            });
+    })
+}
