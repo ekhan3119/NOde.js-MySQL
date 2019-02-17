@@ -1,17 +1,3 @@
-DROP DATABASE IF EXISTS bamazon;
-
-CREATE DATABASE bamazonDB;
-
-USE bamazonDB;
-CREATE TABLE products(
-    item_id INT AUTO_INCREMENT,
-    product_name VARCHAR (255) NOT NULL,
-    departmant_name VARCHAR (255) NOT NULL,
-    price DECIMAL(10,2) NULL,
-    stock_quantity INT,
-    PRIMARY KEY (item_id)
-);
-
 USE bamazonDB;
 INSERT INTO products
     (product_name, departmant_name,price, stock_quantity)
@@ -69,4 +55,3 @@ INSERT INTO products
     ("tooth paste", 'beauty', 5, 10);
 USE bamazonDB;
 SELECT * FROM products;
-

@@ -1,7 +1,6 @@
 //create required variables so the code works
 require("dotenv").config();
 var mysql = require('mysql');
-
 var PASSWORD = process.env.PASSWORD;
 //console.log(PASSWORD);
 var inquirer = require('inquirer');
