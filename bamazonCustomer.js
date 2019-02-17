@@ -1,5 +1,9 @@
 //create required variables so the code works
+require("dotenv").config();
 var mysql = require('mysql');
+
+var PASSWORD = process.env.PASSWORD;
+//console.log(PASSWORD);
 var inquirer = require('inquirer');
 //global variables for user input quantity, user's total cost.
 // create variable for updating stock_quantity
@@ -19,7 +23,7 @@ var connection = mysql.createConnection({
     user: "root",
 
     // Your password
-    password: "F@ltu123",
+    password: PASSWORD,
     database: "bamazonDB"
 });
 //connect to the database function 
@@ -29,23 +33,67 @@ connection.connect(function (err) {
     questions();
 
 });
-// Update the table and which iteams to update.
-function updateTable(totalQuantity, userChoiceID) {
-    connection.query("UPDATE products SET ? WHERE ?",
-        [
-            {
-                stock_quantity: totalQuantity
-            },
-            {
-                item_id: userChoiceID
-            }
-        ],
-        function (err, res) {
-            if (err) throw err;
-            var totalCost = quantity * userPrice;
-            console.log("Your total is: " + '$' + totalCost);
+//Ask the user which item they want 
+//Show the item_id, product_name, and price.
+//get user response and check in the stock for availability
+//show user their selection quantity.
+//show user the total cost
+function questions() {
+    connection.query("SELECT * FROM products", function (err, res) {
+        if (err) throw err;
 
-        })
+        /* for (var i = 0; i < res.length; i++) {
+            console.log("---------------------------------------------------");
+            console.log('\n item_id:' + res[i].item_id + ' || ' + 'product_name:' + res[i].product_name + ' || ' + 'price: $' + res[i].price);
+            console.log('----------------------------------------------------')
+        } */
+        // an array of objects
+
+        /*         function Person(firstName, lastName) {
+                    this.firstName = firstName;
+                    this.lastName = lastName;
+                }
+          
+                    var john = new Person("John", "Smith");
+                    var jane = new Person("Jane", "Doe");
+                    var emily = new Person("Emily", "Jones"); */
+
+        //console.table([john, jane, emily]);
+
+
+        console.table(res);
+
+
+        console.log('Welcome to Bamazon!');
+
+        inquirer
+
+            .prompt([
+
+                {
+                    name: 'item_id',
+                    type: 'input',
+                    message: "Please enter the ID of the product that you wish to buy?"
+
+                },
+                {
+                    name: 'quantity',
+                    type: 'input',
+                    message: "How many units of the product they would like to buy?"
+
+                }
+                //function to response after the input has been logged
+                //User choses an item_id, quantity(make it integer) and then User can see their total quantity, total price.  
+            ]).then(function (answer) {
+                userChoiceID = parseInt(answer.item_id);
+                quantity = parseInt(answer.quantity);
+                userPrice = res[userChoiceID - 1].price;
+                totalQuantity = res[userChoiceID - 1].stock_quantity - quantity;
+                //console.log(totalQuantity);
+                getQuantityProduct(userChoiceID);
+
+            });
+    })
 }
 
 //When user choses the item, check if the item is in stock and also check if we have the quantity that user choose.
@@ -67,43 +115,25 @@ function getQuantityProduct(userChoiceID) {
             }
         })
 }
-//Ask the user which item they want 
-//Show the item_id, product_name, and price.
-//get user response and check in the stock for availability
-//show user their selection quantity.
-//show user the total cost
-function questions() {
-    connection.query("SELECT * FROM products", function (err, res) {
-        if (err) throw err;
 
-        for (var i = 0; i < res.length; i++) {
-            console.log("---------------------------------------------------");
-            console.log('\n item_id:' + res[i].item_id + ' || ' + 'product_name:' + res[i].product_name + ' || ' + 'price: $' + res[i].price);
+// Update the table and which iteams to update.
+function updateTable(totalQuantity, userChoiceID) {
+    connection.query("UPDATE products SET ? WHERE ?",
+        [
+            {
+                stock_quantity: totalQuantity
+            },
+            {
+                item_id: userChoiceID
+            }
+        ],
+        function (err, res) {
+            if (err) throw err;
+            var totalCost = quantity * userPrice;
+            console.log("Your total is: " + '$' + totalCost);
 
-        }
-        inquirer
-            .prompt([
-                {
-                    name: 'item_id',
-                    type: 'input',
-                    message: "Please enter the ID of the product that you wish to buy?"
-
-                },
-                {
-                    name: 'quantity',
-                    type: 'input',
-                    message: "How many units of the product they would like to buy?"
-
-                }
-                //function to response after the input has been logged
-                //User choses an item_id, quantity(make it integer) and then User can see their total quantity, total price.  
-            ]).then(function (answer) {
-                userChoiceID = parseInt(answer.item_id);
-                quantity = parseInt(answer.quantity);
-                userPrice = res[userChoiceID - 1].price;
-                totalQuantity = res[userChoiceID - 1].stock_quantity - quantity;
-                getQuantityProduct(userChoiceID);
-
-            });
-    })
+        })
 }
+
+
+
