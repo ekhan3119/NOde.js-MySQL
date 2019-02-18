@@ -41,4 +41,5 @@ highlight and run the below code
 USE bamazonDB;
 SELECT * FROM products;
 ```
-
+### See the item iD 10 changes quantity from 12 to 10.
+![](images/updateddatabase.png)
