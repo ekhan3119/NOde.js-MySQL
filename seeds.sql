@@ -55,3 +55,4 @@ INSERT INTO products
     ("tooth paste", 'beauty', 5, 10);
 USE bamazonDB;
 SELECT * FROM products;
+

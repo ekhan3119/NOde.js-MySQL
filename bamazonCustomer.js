@@ -14,14 +14,8 @@ var userPrice = 0;
 //MySQL config to get connected
 var connection = mysql.createConnection({
     host: "localhost",
-
-    // Your port; if not 3306
     port: 3306,
-
-    // Your username
     user: "root",
-
-    // Your password
     password: PASSWORD,
     database: "bamazonDB"
 });
@@ -41,28 +35,7 @@ function questions() {
     connection.query("SELECT * FROM products", function (err, res) {
         if (err) throw err;
 
-        /* for (var i = 0; i < res.length; i++) {
-            console.log("---------------------------------------------------");
-            console.log('\n item_id:' + res[i].item_id + ' || ' + 'product_name:' + res[i].product_name + ' || ' + 'price: $' + res[i].price);
-            console.log('----------------------------------------------------')
-        } */
-        // an array of objects
-
-        /*         function Person(firstName, lastName) {
-                    this.firstName = firstName;
-                    this.lastName = lastName;
-                }
-          
-                    var john = new Person("John", "Smith");
-                    var jane = new Person("Jane", "Doe");
-                    var emily = new Person("Emily", "Jones"); */
-
-        //console.table([john, jane, emily]);
-
-
         console.table(res);
-
-
         console.log('Welcome to Bamazon!');
 
         inquirer
@@ -109,7 +82,7 @@ function getQuantityProduct(userChoiceID) {
             if (err) throw err;
             if (quantity > res[0].stock_quantity) {
                 console.log("Sorry we are out of stock.");
-            } else if (quantity < res[0].stock_quantity) {
+            } else if (quantity <= res[0].stock_quantity) {
                 updateTable(totalQuantity, userChoiceID);
             }
         })
