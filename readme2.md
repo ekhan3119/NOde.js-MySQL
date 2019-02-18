@@ -10,3 +10,10 @@
 
                 //update product table using id
                 getQuantityProduct(userChoiceID);
+
+
+                       /* for (var i = 0; i < res.length; i++) {
+            console.log("---------------------------------------------------");
+            console.log('\n item_id:' + res[i].item_id + ' || ' + 'product_name:' + res[i].product_name + ' || ' + 'price: $' + res[i].price);
+            console.log('----------------------------------------------------')
+        } */
