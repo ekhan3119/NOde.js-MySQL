@@ -26,6 +26,10 @@ Questions will show
 User can input their item ID 
 User can input the number of Quantity
 ```
+![](images/customertable.png)
+
+![](images/customerprompt.png)
+
 
 #Database Update
 
